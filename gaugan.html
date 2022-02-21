@@ -5,7 +5,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" href="https://www.samanthacarbontherapy.co.uk/wp-content/uploads/2020/05/Leaf-Icon.png">
-    <title>GauGAN</title>
+    <title>Fingo</title>
 
     <script src="https://unpkg.com/react@16/umd/react.development.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js" crossorigin></script>
@@ -36,12 +36,13 @@
     <div id="root"></div>
 
     <style>
+        
         .container {
             display: flex;
             flex: 1;
             justify-content: center;
             align-items: center;
-
+            
             background: #111111;
             color: #cccccc;
             font-family: 'Roboto', sans-serif;
@@ -155,6 +156,13 @@
             margin: 5px 0;
             cursor: pointer;
         }
+          .color:hover {
+                border: #ffffff 3px solid;
+            }
+
+        .color:active {
+            border: #AFF20A 4px solid;
+        }
     </style>
     <script type="text/babel">
         const colorMap = [
@@ -173,6 +181,9 @@
             { color: "#bf602c", id: 128, label: "leaves" },
             { color: "#32604d", id: 147, label: "river" },
             { color: "#fafafa", id: 158, label: "snow", labelColor: "black" },
+        ];
+        const colorwh = [
+            { color: "#ffffff", id: 147, label: "white" },
         ];
         const hexToColorMap = colorMap.reduce((combined, color) => {
             combined[color.color] = color;
@@ -193,6 +204,7 @@
                 this.state = {
                     image: null,
                     strokeWidth: 18,
+                    url: this.canvasRef
                 };
             }
 
@@ -212,7 +224,7 @@
 
             clearSketch = () => {
                 this.sketchpad.clear();
-                this.setSketchColor(colorMap.find(c => c.label == "sky").color);
+                this.setSketchColor(colorwh.find(c => c.label == "white").color);
                 this.sketchpad.fill();
                 // fill uses setTimeout of 100, so we need a bigger timeout...
                 setTimeout(() => {
@@ -229,6 +241,15 @@
                 this.setState({
                     strokeWidth: width,
                 });
+            }
+            
+            downloadCanvas = (filename) => {
+                this.href = this.canvasRef.current.toDataURL();
+                console.log("url: ", this.href);
+                this.download = filename;
+                this.setState({
+                    url: this.href
+                })
             }
 
             generateSketch = async () => {
@@ -266,6 +287,9 @@
                         <div id="toolbar">
                             <div className="row">
                                 <input type="button" value="Clear" onClick={() => this.clearSketch()} />
+                                {console.log(this.state.url)}
+                                <a href={this.state.url} download><input type="button" value="Save" onClick={() => this.downloadCanvas(this, 'Drawing.png')} /></a>
+                                
                             </div>
                             <div className="row">
                                 <div className="label">Stroke Thickness: {this.state.strokeWidth}px</div>
@@ -280,7 +304,7 @@
                                 <div className="scroll">
                                     {colorMap.map(c => 
                                         <div key={c.color} className="color" style={{
-                                            'background': c.color, 
+                                            'background': c.color,
                                             'color': c.labelColor || 'white',
                                             'textShadow': c.labelColor ? '' : '0 0 1px black' 
                                         }} onClick={() => this.setSketchColor(c.color)}>{c.label}</div>
@@ -288,8 +312,8 @@
                                 </div>
                             </div>
                         </div>
-                        <canvas id="sketchpad" ref={this.canvasRef}></canvas>
-                        <div id="rendered">
+                        <canvas id="sketchpad" className="s" ref={this.canvasRef}></canvas>
+                        <div id="rendered" className="r">
                             {this.state.image ? null : <div className="no-render">
                                 <div className="icon"><i className="far fa-images"></i></div>
                                 <div className="label">Paint something then click the render button below!</div>
